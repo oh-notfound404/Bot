@@ -14,7 +14,7 @@ module.exports = {
   version: "1.0.1",
   cooldowns: 5,
   hasPrefix: true,
-  admin: true,
+  admin: false,
   credits: "Developer",
 
   execute: async ({ api, event, args }) => {
