@@ -1,6 +1,6 @@
 module.exports = {
     name: "getlink",
-    usePrefix: true,
+    usePrefix: false,
     usage: "getlink <reply to media>",
     version: "1.0",
     cooldown: 5,
