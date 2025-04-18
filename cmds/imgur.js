@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = {
     name: "imgur",
-    usePrefix: true,
+    usePrefix: false,
     usage: "imgur <reply to image>",
     version: "1.0",
     cooldown: 5,
