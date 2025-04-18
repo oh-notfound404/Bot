@@ -1,7 +1,7 @@
 {
   "prefix": "-",
   "ownerID": "61574710801984",
-  "autoRestart": false,
+  "autoRestart": true,
   "autoGreet": false,
   "option": {
     "forceLogin": true,
