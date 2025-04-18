@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = {
     name: "soundcloud",
-    usePrefix: true,
+    usePrefix: false,
     usage: "soundcloud <song name>",
     version: "1.0",
     cooldown: 5,
@@ -20,21 +20,6 @@ module.exports = {
             api.setMessageReaction("⏳", messageID, () => {}, true);
             
             const apiUrl = `https://betadash-search-download.vercel.app/sc?search=${encodeURIComponent(query)}`;
-            const headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-            };
-
-            // Check file size first
-            const headResponse = await axios.head(apiUrl, { headers });
-            const fileSize = parseInt(headResponse.headers['content-length'], 10);
-
-            if (fileSize > 25 * 1024 * 1024) {
-                api.setMessageReaction("❌", messageID, () => {}, true);
-                return api.sendMessage({
-                    body: `Error: The audio file exceeds the 25 MB limit\n\nDownload link: ${apiUrl}`,
-                    attachment: null
-                }, threadID, messageID);
-            }
 
             api.setMessageReaction("✅", messageID, () => {}, true);
             return api.sendMessage({
