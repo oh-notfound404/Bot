@@ -1,6 +1,6 @@
 module.exports = {
     name: "cmd",
-    usePrefix: false,
+    usePrefix: true,
     admin: true,
     usage: "cmd",
     version: "1.0",
