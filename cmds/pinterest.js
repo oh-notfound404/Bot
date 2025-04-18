@@ -18,7 +18,7 @@ module.exports = {
         }
 
         const count = Number(args[args.length - 1]);
-        const isCount = !isNaN(count) && count > 0 && count <= 10; // Added validation (1-10 images)
+        const isCount = !isNaN(count) && count > 0 && count <= 20; // Added validation (1-10 images)
         const prompt = isCount ? args.slice(0, -1).join(" ") : args.join(" ");
         const imageCount = isCount ? count : 1;
 
