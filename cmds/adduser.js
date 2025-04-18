@@ -1,8 +1,7 @@
 module.exports = {
   name: "adduser",
-  aliases: ["add"],
+  usePrefix: false,
   usage: "adduser <uid>",
-  description: "Add a user to the group using their UID.",
   version: "1.0.1",
   admin: false, // Added admin property
   cooldown: 5, // Added cooldown property (in seconds)
