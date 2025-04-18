@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = {
     name: "deepseek",
-    usePrefix: true,
+    usePrefix: false,
     usage: "deepseek <question>",
     version: "1.0",
     cooldown: 5,
