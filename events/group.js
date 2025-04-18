@@ -3,7 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 
 module.exports = {
-    name: "welcomenoti",
+    name: "event",
     version: "1.0.0",
 
     async execute({ api, event }) {
@@ -28,7 +28,7 @@ module.exports = {
                 const background = groupInfo.imageSrc || "https://i.ibb.co/4YBNyvP/images-76.jpg";
 
                 // Prepare welcome image URL
-                const url = `https://api.joshweb.click/canvas/welcome?name=${encodeURIComponent(name)}&groupname=${encodeURIComponent(groupName)}&groupicon=${encodeURIComponent(groupIcon)}&member=${memberCount}&uid=${senderID}&background=${encodeURIComponent(background)}`;
+                const url = `http://87.106.100.187:6312/canvas/welcome?name=${encodeURIComponent(name)}&groupname=${encodeURIComponent(groupName)}&groupicon=${encodeURIComponent(groupIcon)}&member=${memberCount}&uid=${senderID}&background=${encodeURIComponent(background)}`;
 
                 // Set up cache directory
                 const cacheDir = path.join(__dirname, '..', 'cache');
