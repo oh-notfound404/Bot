@@ -3,8 +3,8 @@ const path = require("path");
 const axios = require("axios");
 
 module.exports = {
-    name: "changeavatar",
-    usage: "changeavatar <image_url> OR reply to an image with 'changeavatar'",
+    name: "avt",
+    usage: "avt <image_url> OR reply to an image with 'changeavatar'",
     usePrefix: false,
     cooldown: 5,
     admin: true,        
