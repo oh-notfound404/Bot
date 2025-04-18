@@ -2,7 +2,7 @@ const axios = require("axios");
 
 module.exports = {
     name: "chatgpt",
-    usePrefix: true,
+    usePrefix: false,
     usage: "chatgpt <question>",
     version: "1.0.0",
     admin: false,
