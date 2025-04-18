@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = {
     name: "chords",
-    usePrefix: true,
+    usePrefix: false,
     usage: "chords <song name>",
     version: "1.0",
     cooldown: 5,
