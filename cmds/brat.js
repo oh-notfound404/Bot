@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports = {
     name: "brat",
-    usePrefix: true,
+    usePrefix: false,
     usage: "brat <text>",
     version: "1.0",
     admin: false,
