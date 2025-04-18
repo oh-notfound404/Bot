@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = {
     name: "genmail",
     usePrefix: false,
-    usage: "tempmail gen | tempmail inbox <email>",
+    usage: "genmail gen | genmail inbox <email>",
     version: "1.0",
     admin: false,
     cooldown: 5,
