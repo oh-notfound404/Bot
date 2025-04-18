@@ -21,7 +21,7 @@ module.exports = {
             const minutes = Math.floor((uptimeMs / (1000 * 60)) % 60);
             const seconds = Math.floor((uptimeMs / 1000) % 60);
 
-            const imgUrl = `https://kaiz-apis.gleeze.com/api/uptime?instag=brtbrtbrt15&ghub=Cate AI&fb=Cate AI&hours=${hours}&minutes=${minutes}&seconds=${seconds}&botname=Cate AI`;
+            const imgUrl = `https://kaiz-apis.gleeze.com/api/uptime?instag=Cate Saintlurn&ghub=Cate AI&fb=Cate AI&hours=${hours}&minutes=${minutes}&seconds=${seconds}&botname=Cate AI`;
             const filePath = path.join(__dirname, "cache", `uptime_${event.senderID}.png`);
 
             const res = await axios.get(imgUrl, { responseType: "arraybuffer" });
