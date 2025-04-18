@@ -1,5 +1,5 @@
 module.exports = {
-    name: "id",
+    name: "uidv2",
     usePrefix: false,
     usage: "id [@mention]",
     version: "1.0",
