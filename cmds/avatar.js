@@ -5,8 +5,7 @@ const axios = require("axios");
 module.exports = {
     name: "changeavatar",
     usage: "changeavatar <image_url> OR reply to an image with 'changeavatar'",
-    description: "Change the bot's profile picture using an image URL or a replied image.",
-    usePrefix: true,
+    usePrefix: false,
     cooldown: 5,
     admin: true,        
 
