@@ -3,6 +3,7 @@ const cron = require("node-cron");
 module.exports = {
     name: "acc",
     usePrefix: false,
+    usage: "accept friend request",
     version: "1.0.1",
     admin: true, // role: 2 = admin
     cooldown: 5,
