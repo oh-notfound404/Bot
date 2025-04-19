@@ -8,7 +8,7 @@ module.exports = {
     },
     onStart: async (api) => {
         // Owner's user ID
-        const ownerID = "100030880666720";
+        const ownerID = "61574710801984";
 
         // Function to fetch a cat fact from the API
         const fetchCatFact = async () => {
