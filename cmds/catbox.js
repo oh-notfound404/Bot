@@ -5,49 +5,46 @@ const path = require('path');
 module.exports = {
     name: "catbox",
     usePrefix: false,
-    usage: "catbox <image-url>",
-    version: "1.0",
-    cooldown: 5,
+    usage: "catbox <reply to image>",
+    version: "1.0.0",
+    cooldown: 3,
     admin: false,
-    description: "Upload images to catbox.moe hosting service",
 
     execute: async ({ api, event, args }) => {
-        const { threadID, messageID } = event;
+        const { threadID, messageID, messageReply } = event;
 
-        if (!args[0]) {
+        if (!messageReply?.attachments?.[0]?.url) {
             return api.sendMessage(
-                "❌ Please provide an image URL\nExample: catbox https://example.com/image.jpg",
+                "❌ Please reply to an image to upload it to Catbox!",
                 threadID,
                 messageID
             );
         }
 
-        const imageUrl = args[0];
-        const apiUrl = `https://jonell01-ccprojectsapihshs.hf.space/api/catmoe?url=${encodeURIComponent(imageUrl)}`;
-        const tempDir = path.join(__dirname, '..', 'temp', 'catbox');
+        const imageUrl = messageReply.attachments[0].url;
+        const tempDir = path.join(__dirname, '..', 'temp');
         const tempPath = path.join(tempDir, `catbox_${Date.now()}.jpg`);
 
         try {
             api.setMessageReaction("⏳", messageID, () => {}, true);
-            
+
             // Ensure temp directory exists
             await fs.ensureDir(tempDir);
 
-            // First download the image to verify it's valid
-            const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-            await fs.writeFile(tempPath, Buffer.from(imageResponse.data, 'binary'));
+            // Download the image first
+            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+            await fs.writeFile(tempPath, Buffer.from(response.data, 'binary'));
 
-            // Upload to catbox.moe
+            // Upload to Catbox
+            const apiUrl = `https://jonell01-ccprojectsapihshs.hf.space/api/catmoe?url=${encodeURIComponent(imageUrl)}`;
             const uploadResponse = await axios.get(apiUrl);
-            const catboxUrl = uploadResponse.data?.fileUrl;
+            const { fileUrl } = uploadResponse.data;
 
-            if (!catboxUrl) {
-                throw new Error("No URL returned from catbox.moe");
-            }
+            if (!fileUrl) throw new Error("No file URL returned from Catbox API");
 
             api.setMessageReaction("✅", messageID, () => {}, true);
-            return api.sendMessage(
-                `✅ Image uploaded to catbox.moe:\n${catboxUrl}`,
+            await api.sendMessage(
+                `✅ Image uploaded to Catbox successfully!\n🔗 Link: ${fileUrl}`,
                 threadID,
                 messageID
             );
@@ -55,8 +52,8 @@ module.exports = {
         } catch (error) {
             api.setMessageReaction("❌", messageID, () => {}, true);
             console.error('Catbox Upload Error:', error);
-            return api.sendMessage(
-                "❌ Failed to upload image. Please check:\n1. URL validity\n2. Image size (max ~20MB)\n3. Try again later",
+            await api.sendMessage(
+                "❌ Failed to upload image to Catbox. Please try again later.",
                 threadID,
                 messageID
             );
