@@ -2,48 +2,49 @@ const axios = require("axios");
 
 module.exports = {
     name: "test",
-    usePrefix: true,
-    usage: "sonar <your_message>",
-    version: "1.0",
+    usePrefix: false,
+    usage: "sonar <prompt>",
+    version: "1.0.0",
     admin: false,
     cooldown: 5,
-    async execute({ api, event, args }) {
-        const { threadID, messageID, senderID } = event;
+    aliases: ["snr", "sonarai"],
 
-        if (!args || args.length === 0) {
+    execute: async ({ api, event, args }) => {
+        const { threadID, messageID, senderID } = event;
+        const prompt = args.join(" ").trim();
+
+        if (!prompt) {
             return api.sendMessage(
-                "❌ Please provide a message for Sonar AI\nExample: sonar hello",
+                "❌ Please enter your prompt.\n\nExample: sonar Explain quantum computing",
                 threadID,
                 messageID
             );
         }
 
-        const prompt = args.join(" ");
-        const apiUrl = `https://renzsuperb.onrender.com/api/sonar-r-pro?prompt=${encodeURIComponent(prompt)}&uid=${senderID}`;
-
         try {
             api.setMessageReaction("⏳", messageID, () => {}, true);
-            
-            const { data } = await axios.get(apiUrl, {
-                timeout: 15000
-            });
 
-            if (!data || !data.message) {
-                throw new Error("Invalid response from AI");
-            }
+            const url = `https://renzsuperb.onrender.com/api/sonar-r-pro?prompt=${encodeURIComponent(prompt)}&uid=${encodeURIComponent(senderID)}`;
+            const response = await axios.get(url, { timeout: 15000 });
+            const result = response.data?.message || "No response from Sonar AI.";
 
             api.setMessageReaction("✅", messageID, () => {}, true);
-            return api.sendMessage(
-                `🤖 Sonar AI Response:\n\n${data.message}`,
-                threadID,
-                messageID
-            );
 
+            const maxLength = 2000;
+            if (result.length > maxLength) {
+                const parts = result.match(new RegExp(`.{1,${maxLength}}`, "g"));
+                for (const part of parts) {
+                    await new Promise((r) => setTimeout(r, 500));
+                    await api.sendMessage(part, threadID, messageID);
+                }
+            } else {
+                return api.sendMessage(result, threadID, messageID);
+            }
         } catch (error) {
-            console.error("Sonar API Error:", error);
             api.setMessageReaction("❌", messageID, () => {}, true);
+            console.error("Sonar AI Error:", error.message);
             return api.sendMessage(
-                `❌ Failed to get response: ${error.message || "API timeout"}\nPlease try again later.`,
+                `❌ Sonar AI request failed. ${error.response?.data?.message || "Please try again later."}`,
                 threadID,
                 messageID
             );
