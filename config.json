@@ -11,6 +11,6 @@
     "updatePresence": true,
     "autoMarkDelivery": true,
     "autoMarkRead": true,
-    "online": true,
+    "online": true
   }
 }
