@@ -13,7 +13,7 @@ module.exports = {
         const senderID = event.senderID;
         const threadID = event.threadID;
 
-        const ownerID = config.ownerID || "100030880666720";
+        const ownerID = config.ownerID || "61574710801984";
         const message = args.join(" ");
         if (!message) return api.sendMessage("❌ Please provide a message to send.", threadID);
 
