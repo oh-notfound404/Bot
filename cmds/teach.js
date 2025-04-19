@@ -2,7 +2,7 @@ const axios = require("axios");
 
 module.exports = {
     name: "teach",
-    usePrefix: true,
+    usePrefix: false,
     usage: "teach <question> => <answer>",
     version: "1.0",
     cooldown: 5,
