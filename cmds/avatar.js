@@ -5,6 +5,7 @@ const axios = require("axios");
 module.exports = {
     name: "avt",
     usage: "avt <image_url> OR reply to an image with 'changeavatar'",
+    version: "1.0",
     usePrefix: false,
     cooldown: 5,
     admin: true,        
