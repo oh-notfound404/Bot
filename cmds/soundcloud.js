@@ -1,82 +1,63 @@
-const axios = require('axios');
-const fs = require('fs-extra');
-const path = require('path');
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
     name: "soundcloud",
     usePrefix: false,
-    usage: "soundcloud <search query>",
+    usage: "soundcloud [song name]",
+    description: "Search and download SoundCloud tracks",
     version: "1.0",
-    cooldown: 5, // Increased cooldown for audio downloads
-    admin: false,
-    description: "Search and send SoundCloud tracks",
+    cooldown: 5,
 
-    execute: async ({ api, event, args }) => {
-        const { threadID, messageID } = event;
-
+    async execute({ api, event, args }) {
         if (!args[0]) {
-            return api.sendMessage(
-                "❌ Please provide a search query\nExample: soundcloud Bawat Sandali",
-                threadID,
-                messageID
-            );
+            return api.sendMessage("Please provide a search keyword.\nUsage: soundcloud [song name]", event.threadID, event.messageID);
         }
 
-        const query = args.join(' ');
-        const apiUrl = `https://kaiz-apis.gleeze.com/api/soundcloud-search?title=${encodeURIComponent(query)}`;
-        const tempDir = path.join(__dirname, '..', 'temp', 'soundcloud');
-        const audioPath = path.join(tempDir, `sc_${Date.now()}.mp3`);
+        const keyword = encodeURIComponent(args.join(" "));
+        const searchURL = `https://kaiz-apis.gleeze.com/api/soundcloud-search?title=${keyword}`;
 
         try {
-            api.setMessageReaction("⏳", messageID, () => {}, true);
-            await fs.ensureDir(tempDir);
+            const searchRes = await axios.get(searchURL);
+            const track = searchRes.data.results[0]; // Get first result
 
-            // Search for tracks
-            const response = await axios.get(apiUrl);
-            const { results } = response.data;
-
-            if (!results || results.length === 0) {
-                throw new Error("No results found");
+            if (!track || !track.url) {
+                return api.sendMessage("No track found.", event.threadID, event.messageID);
             }
 
-            // Get first result's audio
-            const trackUrl = results[0].url;
-            const audioApiUrl = `https://kaiz-apis.gleeze.com/api/soundcloud-dl?url=${encodeURIComponent(trackUrl)}`;
-            const audioResponse = await axios.get(audioApiUrl, { responseType: 'stream' });
+            const downloadURL = `https://kaiz-apis.gleeze.com/api/soundcloud-dl?url=${encodeURIComponent(track.url)}`;
+            const dlRes = await axios.get(downloadURL);
+            const { title, artist, thumbnail, audioUrl } = dlRes.data;
 
-            // Save audio temporarily
-            const writer = fs.createWriteStream(audioPath);
-            audioResponse.data.pipe(writer);
+            // Download thumbnail
+            const imgPath = path.join(__dirname, "cache", `sc_thumb_${event.senderID}.jpg`);
+            const audioPath = path.join(__dirname, "cache", `sc_audio_${event.senderID}.mp3`);
+            const imgRes = await axios.get(thumbnail, { responseType: "arraybuffer" });
+            fs.writeFileSync(imgPath, imgRes.data);
 
-            await new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
+            // Download audio
+            const audioRes = await axios.get(audioUrl, { responseType: "arraybuffer" });
+            fs.writeFileSync(audioPath, audioRes.data);
+
+            // Send thumbnail and caption
+            api.sendMessage({
+                body: `🎵 Title: ${title}\n👤 Artist: ${artist}`,
+                attachment: fs.createReadStream(imgPath)
+            }, event.threadID, () => {
+                // Send audio after image
+                api.sendMessage({
+                    body: "🎧 Here's your SoundCloud track!",
+                    attachment: fs.createReadStream(audioPath)
+                }, event.threadID, () => {
+                    fs.unlinkSync(imgPath);
+                    fs.unlinkSync(audioPath);
+                });
             });
 
-            // Send audio file only
-            api.setMessageReaction("✅", messageID, () => {}, true);
-            await api.sendMessage(
-                {
-                    attachment: fs.createReadStream(audioPath),
-                    body: `🎧 ${results[0].title} - ${results[0].artist}`
-                },
-                threadID,
-                messageID
-            );
-
-        } catch (error) {
-            api.setMessageReaction("❌", messageID, () => {}, true);
-            console.error('SoundCloud Error:', error);
-            await api.sendMessage(
-                "❌ Failed to download audio. Please try another query.",
-                threadID,
-                messageID
-            );
-        } finally {
-            // Clean up
-            if (await fs.pathExists(audioPath)) {
-                await fs.unlink(audioPath).catch(console.error);
-            }
+        } catch (err) {
+            console.error("SoundCloud Error:", err);
+            api.sendMessage("An error occurred while processing your request.", event.threadID, event.messageID);
         }
     }
 };
