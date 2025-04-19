@@ -4,10 +4,10 @@ const path = require('path');
 
 module.exports = {
     name: "fbdl",
-    usePrefix: true,
+    usePrefix: false,
     usage: "fbdl <facebook-url>",
-    version: "1.1",  // Updated version
-    cooldown: 10,    // Increased cooldown
+    version: "1.0",
+    cooldown: 5,
     admin: false,
 
     execute: async ({ api, event, args }) => {
@@ -15,7 +15,7 @@ module.exports = {
 
         if (!args[0]) {
             return api.sendMessage(
-                "❌ Please provide a Facebook video URL",
+                "❌ Please provide a Facebook video URL\nExample: fbdl https://fb.watch/example",
                 threadID,
                 messageID
             );
@@ -23,24 +23,24 @@ module.exports = {
 
         const fbUrl = args[0];
         const apiUrl = `https://kaiz-apis.gleeze.com/api/fbdl?url=${encodeURIComponent(fbUrl)}`;
-        const tempDir = path.join(__dirname, '..', 'temp', 'fbdl');
-        const videoPath = path.join(tempDir, `fb_video_${Date.now()}.mp4`);
+        const tempDir = path.join(__dirname, '..', 'temp', 'fb_videos');
+        const videoPath = path.join(tempDir, `fb_${Date.now()}.mp4`);
 
         try {
             api.setMessageReaction("⏳", messageID, () => {}, true);
             
-            // Ensure temp directory exists
+            // Create temp directory if not exists
             await fs.ensureDir(tempDir);
 
-            // Fetch video info
+            // Get video URL from API
             const response = await axios.get(apiUrl);
-            const { title, author, quality, videoUrl } = response.data;
+            const videoUrl = response.data?.videoUrl;
 
             if (!videoUrl) {
-                throw new Error("No video URL found in response");
+                throw new Error("No video URL found");
             }
 
-            // Download video file
+            // Download video
             const videoResponse = await axios.get(videoUrl, { responseType: 'stream' });
             const writer = fs.createWriteStream(videoPath);
             videoResponse.data.pipe(writer);
@@ -50,24 +50,11 @@ module.exports = {
                 writer.on('error', reject);
             });
 
-            // Send video info
-            await api.sendMessage(
-                `📹 Facebook Video Info:\n━━━━━━━━━━━━━━━━\n` +
-                `🎬 Title: ${title || "N/A"}\n` +
-                `👤 Author: ${author || "N/A"}\n` +
-                `🖥️ Quality: ${quality || "N/A"}\n` +
-                `━━━━━━━━━━━━━━━━\n` +
-                `✅ Downloaded successfully!`,
-                threadID,
-                messageID
-            );
-
-            // Send video file
+            // Send video directly
             api.setMessageReaction("✅", messageID, () => {}, true);
             await api.sendMessage(
                 {
-                    attachment: fs.createReadStream(videoPath),
-                    body: "Here's your Facebook video:"
+                    attachment: fs.createReadStream(videoPath)
                 },
                 threadID,
                 messageID
@@ -77,7 +64,7 @@ module.exports = {
             api.setMessageReaction("❌", messageID, () => {}, true);
             console.error('FB Download Error:', error);
             await api.sendMessage(
-                "❌ Failed to download video. Please check:\n1. URL validity\n2. Video privacy settings\n3. Try again later",
+                "❌ Failed to download video. Please check the URL and try again.",
                 threadID,
                 messageID
             );
